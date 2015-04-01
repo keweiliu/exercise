@@ -2,16 +2,16 @@
 class Status{
     private $name = '';
     private $value = '';
-    private $event = '';
+    private $events = array();
     private $from_players;
     private $to_players;
-    public function __construct($name, $value, $event){
+    public function __construct($name, $value, array $events){
         $this->name = $name;
         $this->value = $value;
-        $this->event = $event;
+        $this->events = $events;
     }
-    public function get_event(){
-        return $this->event;
+    public function get_events(){
+        return $this->events;
     }
     public function get_value(){
         return $this->value;
