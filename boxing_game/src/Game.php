@@ -3,19 +3,30 @@
 require_once './Player.php';
 require_once './Rule.php';
 require_once './Status.php';
+require_once './AllRules.php';
+require_once './AllStatus.php';
 
 class Game{
-    private $victory_conditions = '';
+
     private $rules = array();
     private $players = array();
-    private $runing = '';
     private $status = array();
-    public $output;
-    public function add_rule($event, $from_players_require_attributes, $to_players_require_attributes, $do){
-        $rule = new Rule($event, $from_players_require_attributes, $to_players_require_attributes, $do);
-        $this->rules[$event] = $rule;
+    private $runing = '';
+    private $victory_conditions = '';
+    private $output;
+
+    public function __construct($victory_conditions, $running){
+        $this->victory_conditions = $victory_conditions;
+        $this->runing = $running;
     }
-    
+
+    public function add_rule($event){
+        $rule = AllRules::getInstance()->get_rule_by_name($event);
+        if(!empty($rule)){
+            $this->rules[$event] = $rule;
+        }
+    }
+
     public function add_player_by_csv_file($file_name){
         if (! file_exists ( $file_name )) {
             return false;
@@ -39,15 +50,14 @@ class Game{
             return $e->getMessage ();
         }
     }
-    
-    public function is_win(){
-        if (! empty ( $this->victory_conditions )) {
-            if (eval ( $this->victory_conditions ) === false){
-                return 'the victory conditions has syntax error';
-            }
+
+    public function add_status($name){
+        $status = AllStatus::getInstance()->get_status_by_name($name);
+        if(!empty($status)){
+            $this->$status[$name] = $rule;
         }
     }
-    
+
     public function running(){
         if (! empty ( $this->runing )) {
             if (eval ( $this->runing ) === false){
@@ -55,30 +65,34 @@ class Game{
             }
         }
     }
+
+    public function is_win(){
+        if (! empty ( $this->victory_conditions )) {
+            $result = eval ( $this->victory_conditions );
+            if ( $result === false){
+                return 'the victory conditions has syntax error';
+            }
+            if ( $result === true ){
+                $this->output;
+            }
+        }
+    }
+
     public function get_players(){
         return $this->players;
     }
-    
+
     public function get_rules(){
         return $this->rules;
     }
-    public function add_victory_conditions($victory_conditions){
-        $this->victory_conditions = $victory_conditions;
-    }
-    public function add_running_sequence($running){
-        $this->runing = $running;
-    }
-    public function handle_status($status_name){
-        if(!in_array($status_name, $this->status)) return 'the status no find';
-        $status = $this->status[$status_name];
-        $event = $status->get_event();
-        $this->rules[$event]->run_by_rule($status->get_from_players(), $status->get_to_players(), array('value' => $status->get_value()));
-    }
-    public function add_status($name, $value, $event){
-        if (!in_array($event, $this->rules)){
-            return 'this event inexistence';
+
+    public function get_rule($rule_name){
+        if (isset($this->all_rules[$event]) && $this->all_rules[$event] instanceof Rule){
+            return $this->all_rules[$event];
         }
-        $status = new Status($name, $value, $event);
-        $this->status[$name] = $status;
+    }
+
+    public function output(){
+        echo print_r($this->output, true);
     }
 }
