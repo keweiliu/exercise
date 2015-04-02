@@ -40,15 +40,17 @@ class AllStatus{
             $file = fopen ( $file_name, 'r' );
             $status_member_name = fgetcsv ( $file );
             while ($row = fgetcsv($file)){
+                if (empty($row[0])) continue;
                 $name = $row[0];
                 $triggering_conditions = $row[1];
                 $cause_event = unserialize($row[2]);
                 $status = new Status($row[0], $row[1], $row[2]);
                 $this->all_status[$name] = $status;
             }
+            fclose ($file);
         } catch ( Exception $e ) {
             if ($file) {
-                $file . close ();
+                fclose ($file);
             }
             return $e->getMessage ();
         }
@@ -84,10 +86,11 @@ class AllStatus{
                     $this->all_status[$name] = $one_status;
                 }
             }
+            fclose($file);
             return true;
         } catch ( Exception $e ) {
             if ($file) {
-                $file . close ();
+                fclose($file);
             }
             return $e->getMessage ();
         }

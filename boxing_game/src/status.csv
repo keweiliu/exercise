@@ -1,2 +1,7 @@
 name,triggering_conditions,cause_event
-,,
+be_injured,"
+    $to_player[""Health""] -= $values[""value""];
+    if($to_player[""Health""]<=0){
+        return true;
+    }
+","a:1:{i:0;s:3:""die"";}"

@@ -1,5 +1,13 @@
 <?php
 require_once './Rule.php';
+
+$all_status = AllRules::getInstance();
+$event = 'die';
+$triggering_conditions = '
+    $this->output[winer] = $from_player["Name"];
+';
+$cause_event = array('die');
+$rule = new Rule($event, $from_players_require_attributes, $to_players_require_attributes, $do);
 class AllRules{
 
     private static $_instance;
@@ -30,9 +38,10 @@ class AllRules{
                 $rules = new Rule($row[0], $row[1], $row[2], $row[3], $row[4]);
                 $this->all_rules[$row[0]] = $rules;
             }
+            fclose($file);
         } catch ( Exception $e ) {
             if ($file) {
-                $file . close ();
+                fclose($file);
             }
             return $e->getMessage ();
         }
@@ -70,9 +79,11 @@ class AllRules{
                     $this->all_rules[$event] = $rule;
                 }
             }
+            fclose($file);
+            return true;
         } catch ( Exception $e ) {
             if ($file) {
-                $file . close ();
+                fclose($file);
             }
             return $e->getMessage ();
         }

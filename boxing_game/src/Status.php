@@ -8,7 +8,7 @@ class Status{
 //    private $from_players = array();
 //    private $to_players = array();
 
-    public function __construct($name, $triggering_conditions, array $cause_events){
+    public function __construct($name, $triggering_conditions, $cause_events){
         $this->name = $name;
         $this->triggering_conditions = $triggering_conditions;
         $this->cause_events = $cause_events;

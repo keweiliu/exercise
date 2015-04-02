@@ -79,4 +79,8 @@ class Rule {
     public function get_cause_status(){
         return $this->cause_status;
     }
+    
+    public function get_output(){
+        return $this->output;
+    }
 }
