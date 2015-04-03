@@ -45,6 +45,7 @@ class Game{
     }
 
     public function add_rule($event){
+        if (isset($this->rules[$event])) return true;
         $rule = AllRules::getInstance()->get_rule_by_name($event);
         if(!empty($rule)){
             $status = $rule->get_require_status();
@@ -56,6 +57,7 @@ class Game{
     }
 
     public function add_status($name){
+        if (isset($this->status[$name])) return true;
         $status = AllStatus::getInstance()->get_status_by_name($name);
         if(!empty($status)){
             $events = $status->get_require_events();
