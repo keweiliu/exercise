@@ -27,14 +27,12 @@ class Game{
         try {
             $file = fopen ( $file_name, 'r' );
             $attribute_names = fgetcsv ( $file );
-            $count = 0;
             while ($row = fgetcsv($file)){
                 $player = new Player();
                 foreach ($row as $key => $value){
                     $player->add_attribute($attribute_names[$key], $value);
                 }
                 $this->players[] = $player;
-                $count++;
             }
         } catch ( Exception $e ) {
             if ($file) {
