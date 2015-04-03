@@ -4,13 +4,18 @@ require_once './Status.php';
 $all_status = AllStatus::getInstance();
 $name = 'be_injured';
 $triggering_conditions = '
-    $to_player["Health"] -= $values["value"];
+    $to_player["Health"] -= $params["value"];
     if($to_player["Health"]<=0){
-        return true;
+        return AllRules::getInstance()->get_rule_by_name("die");
+    }else{
+        $player = $from_player;
+        $from_player = $to_player;
+        $to_player = $player;
+        return AllRules::getInstance()->get_rule_by_name("hit");
     }
 ';
-$cause_event = array('die');
-$status = new Status($name, $triggering_conditions, $cause_event);
+$require_event = array('die','hit');
+$status = new Status($name, $triggering_conditions, $require_event);
 echo $all_status->save_status_to_csv_file($status);
 
 class AllStatus{
@@ -81,8 +86,8 @@ class AllStatus{
                 $name = $one_status->get_name();
                 if (isset($this->all_status[$name])) continue;
                 $triggering_conditions = $one_status->get_triggering_conditions();
-                $cause_events = serialize($one_status->get_cause_events());
-                if(fputcsv($file, array($name, $triggering_conditions, $cause_events))){
+                $require_events = serialize($one_status->get_require_events());
+                if(fputcsv($file, array($name, $triggering_conditions, $require_events))){
                     $this->all_status[$name] = $one_status;
                 }
             }

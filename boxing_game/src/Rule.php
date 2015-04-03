@@ -5,26 +5,31 @@ class Rule {
     private $from_players_require_attributes = array ();
     private $to_players_require_attributes = array ();
     private $do = '';
-    private $cause_status = array();
+    private $require_status = array();
     private $output;
 
-    public function __construct($event, $from_players_require_attributes, $to_players_require_attributes, $do, $cause_status = array()) {
+    public function __construct($event, $from_players_require_attributes, $to_players_require_attributes, $do, $require_status = array()) {
         $this->event = $event;
-        $this->do = $do;
         $this->from_players_require_attributes = $from_players_require_attributes;
         $this->to_players_require_attributes = $to_players_require_attributes;
-        $this->cause_status = $cause_status;
+        $this->do = $do;
+        $this->require_status = $require_status;
     }
 
-    public function run_by_rule($from_players, $to_players, $parameters = array()) {
+    public function run_by_rule($from_players, $to_players, $params = array()) {
         $from_check = $this->check_player('from', $from_players);
         if ($from_check !== true) return $from_check;
         $to_check = $this->check_player('to', $to_players);
         if ($to_check !== true) return $to_check;
         if (! empty ( $this->do )) {
-            if(eval ( $this->do ) === false){
+            $result = eval ( $this->do );
+            if($result === false){
                 return 'the '.$this->event.' rule has syntax error';
             }
+            if (!empty($result) && $result instanceof Status){
+                return $result->check_triggering_conditions($from_players, $to_players, $params);
+            }
+            return $result;
         }
     }
 
@@ -76,8 +81,8 @@ class Rule {
         return $this->do;
     }
 
-    public function get_cause_status(){
-        return $this->cause_status;
+    public function get_require_status(){
+        return $this->require_status;
     }
     
     public function get_output(){

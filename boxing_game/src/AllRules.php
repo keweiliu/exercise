@@ -1,13 +1,18 @@
 <?php
 require_once './Rule.php';
 
-$all_status = AllRules::getInstance();
+$all_rules = AllRules::getInstance();
 $event = 'die';
-$triggering_conditions = '
-    $this->output[winer] = $from_player["Name"];
+$from_players_require_attributes = array("Name");
+$to_players_require_attributes = array();
+$do = '
+    $result["winer"] = $from_player["Name"];
+    return $result;
 ';
-$cause_event = array('die');
-$rule = new Rule($event, $from_players_require_attributes, $to_players_require_attributes, $do);
+$require_status = array();
+$rule = new Rule($event, $from_players_require_attributes, $to_players_require_attributes, $do, $require_status);
+echo $all_rules->save_rules_to_csv_file($rule);
+
 class AllRules{
 
     private static $_instance;
@@ -35,7 +40,12 @@ class AllRules{
             $file = fopen ( $file_name, 'r' );
             $rule_member_name = fgetcsv ( $file );
             while ($row = fgetcsv($file)){
-                $rules = new Rule($row[0], $row[1], $row[2], $row[3], $row[4]);
+                $event = $row[0];
+                $from_players_require_attributes = unserialize($row[1]);
+                $to_players_require_attributes = unserialize($row[2]);
+                $do = $row[3];
+                $require_status = unserialize($row[4]);
+                $rules = new Rule($event, $from_players_require_attributes, $to_players_require_attributes, $do, $require_status);
                 $this->all_rules[$row[0]] = $rules;
             }
             fclose($file);
@@ -71,11 +81,11 @@ class AllRules{
                 if (!($rule instanceof Rule)) continue;
                 $event = $rule->get_event();
                 if (isset($this->all_rules[$event])) continue
-                $from_player_require_attributes = $rule->get_from_player_require_attributes();
-                $to_player_require_attributes = $rule->get_to_player_require_attributes();
+                $from_player_require_attributes = serialize($rule->get_from_player_require_attributes());
+                $to_player_require_attributes = serialize($rule->get_to_player_require_attributes());
                 $do = $rule->get_do();
-                $cause_status = $rule->get_cause_status();
-                if( fputcsv($file, array($event, $from_player_require_attributes, $to_player_require_attributes, $do, $cause_status))){
+                $require_status = serialize($rule->get_require_status());
+                if( fputcsv($file, array($event, $from_player_require_attributes, $to_player_require_attributes, $do, $require_status))){
                     $this->all_rules[$event] = $rule;
                 }
             }

@@ -8,8 +8,8 @@ require_once './AllStatus.php';
 
 class Game{
 
-    private $rules = array();
     private $players = array();
+    private $rules = array();
     private $status = array();
     private $runing = '';
     private $victory_conditions = '';
@@ -18,13 +18,6 @@ class Game{
     public function __construct($victory_conditions, $running){
         $this->victory_conditions = $victory_conditions;
         $this->runing = $running;
-    }
-
-    public function add_rule($event){
-        $rule = AllRules::getInstance()->get_rule_by_name($event);
-        if(!empty($rule)){
-            $this->rules[$event] = $rule;
-        }
     }
 
     public function add_player_by_csv_file($file_name){
@@ -51,10 +44,25 @@ class Game{
         }
     }
 
+    public function add_rule($event){
+        $rule = AllRules::getInstance()->get_rule_by_name($event);
+        if(!empty($rule)){
+            $status = $rule->get_require_status();
+            foreach ($status as $one_status){
+                $this->add_status($one_status);
+            }
+            $this->rules[$event] = $rule;
+        }
+    }
+
     public function add_status($name){
         $status = AllStatus::getInstance()->get_status_by_name($name);
         if(!empty($status)){
-            $this->$status[$name] = $rule;
+            $events = $status->get_require_events();
+            foreach ($events as $event){
+                $this->add_rule($event);
+            }
+            $this->status[$name] = $status;
         }
     }
 

@@ -1,7 +1,12 @@
-name,triggering_conditions,cause_event
+name,triggering_conditions,require_events
 be_injured,"
-    $to_player[""Health""] -= $values[""value""];
+    $to_player[""Health""] -= $params[""value""];
     if($to_player[""Health""]<=0){
-        return true;
+        return AllRules::getInstance()->get_rule_by_name(""die"");
+    }else{
+        $player = $from_player;
+        $from_player = $to_player;
+        $to_player = $player;
+        return AllRules::getInstance()->get_rule_by_name(""hit"");
     }
-","a:1:{i:0;s:3:""die"";}"
+","a:2:{i:0;s:3:""die"";i:1;s:3:""hit"";}"
